@@ -26,15 +26,35 @@ const create: Handler = (event: any, context: Context, callback: Callback) => {
       return;
     }
 
-    const params: DynamoDB.DocumentClient.PutItemInput = {
+    let params: DynamoDB.DocumentClient.PutItemInput = {
       TableName: `${process.env.DYNAMODB_TABLE}-customers`,
       Item: {
         id: `${uuid()}`,
-        name: data.name as string,
+        name: data.name || undefined,
+        web: data.web || undefined,
+        company: data.company || undefined,
+        email: data.email || undefined,
+        address: undefined,
+        avatar: undefined,
+        persons: [],
+        uid: data.uid || undefined,
+        projects: [],
         createdAt: timestamp,
         updatedAt: timestamp
       } as Item
     };
+
+    if(data.address && typeof data.address === 'object') {
+
+      params.Item.address = {
+        street: data.address.street || undefined,
+        number: data.address.number || undefined,
+        town: data.address.town || undefined,
+        zip: data.address.zip || undefined,
+        country: data.address.country || undefined,
+        countryShort: data.address.countryShort || undefined
+      };
+    }
     
 
     dB.put(params, (error: AWSError, result) => {
