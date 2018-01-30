@@ -1,7 +1,8 @@
-import * as uuid from 'uuid';
+import * as uuid from 'uuid/v1';
 import { Handler, Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 
+import { validateEventBody } from '../utils/tools';
 import ICustomer from '../interfaces/customer.interface';
 import { AWSError } from 'aws-sdk/lib/error';
 
@@ -26,12 +27,7 @@ interface Response {
 const create: Handler = (event: any, context: Context, callback: Callback) => {
 
     const timestamp = new Date().getTime();
-    const data = JSON.parse(event.body);
-
-    callback(null, {
-      statusCode: 200,
-      body: data
-    });
+    const data: any = validateEventBody(event.body);
 
     if(typeof data.name !== 'string') {
       console.error('Validation Failed');
@@ -40,9 +36,9 @@ const create: Handler = (event: any, context: Context, callback: Callback) => {
     }
 
     const params: Params = {
-      TableName: `${process.env.DYNAMODB_TABLE}`,
+      TableName: `${process.env.DYNAMODB_TABLE}-customers`,
       Item: {
-        id: `${uuid.v1()}`,
+        id: `${uuid()}`,
         name: data.name as string,
         createdAt: timestamp,
         updatedAt: timestamp

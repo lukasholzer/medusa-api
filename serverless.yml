@@ -7,7 +7,7 @@ provider:
   region: eu-west-1
 
   environment:
-    DYNAMO_DB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
 
   iamRoleStatements:
     - Effect: Allow
@@ -23,7 +23,7 @@ provider:
 
 functions:
   create:
-    handler: api/customers/create.hello
+    handler: api/customers/create.create
     events:
       - http:
           path: customers
@@ -51,5 +51,12 @@ resources:
         
 plugins:
   - serverless-plugin-typescript
-  # - serverless-dynamodb-local
-  # - serverless-offline
+  - serverless-dynamodb-local
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/**/*
+  include:
+    - api/*
+    - calls/*
