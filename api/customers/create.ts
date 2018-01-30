@@ -1,23 +1,37 @@
 import * as uuid from 'uuid';
+import { Handler, Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 
 import ICustomer from '../interfaces/customer.interface';
-import { Error } from 'aws-sdk/clients/mq';
 import { AWSError } from 'aws-sdk/lib/error';
-import { PutItemOutput } from 'aws-sdk/clients/dynamodb';
 
 
 const dB = new DynamoDB.DocumentClient();
+
+interface Params {
+  TableName: string;
+  Item: Item;
+}
 
 interface Item extends ICustomer {
   createdAt: number;
   updatedAt: number;
 }
 
-export function create(event, context, callback) {
+interface Response {
+  statusCode: number;
+  body: any;
+}
+
+const create: Handler = (event: any, context: Context, callback: Callback) => {
 
     const timestamp = new Date().getTime();
-    const data = JSON.parse(event.body)
+    const data = JSON.parse(event.body);
+
+    callback(null, {
+      statusCode: 200,
+      body: data
+    });
 
     if(typeof data.name !== 'string') {
       console.error('Validation Failed');
@@ -25,15 +39,16 @@ export function create(event, context, callback) {
       return;
     }
 
-    const params = {
-      TableName: process.env.DYNAMODB_TABLE,
+    const params: Params = {
+      TableName: `${process.env.DYNAMODB_TABLE}`,
       Item: {
-        id: uuid.v1() as string,
-        name: data.name,
+        id: `${uuid.v1()}`,
+        name: data.name as string,
         createdAt: timestamp,
         updatedAt: timestamp
       } as Item
     };
+    
 
     dB.put(params, (error: AWSError, result) => {
       if(error) {
@@ -42,12 +57,14 @@ export function create(event, context, callback) {
         return;
       }
 
-      const response = {
+      const response: Response = {
         statusCode: 200,
         body: JSON.stringify(result)
       };
-      
+
       callback(null, response);
 
     });
 }
+
+export { create };
