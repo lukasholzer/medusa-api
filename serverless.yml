@@ -29,6 +29,13 @@ functions:
           path: customers
           method: post
           cors: true
+  list:
+    handler: api/customers/list.list
+    events:
+      - http:
+          path: customers
+          method: get
+          cors: true
 
 resources:
   Resources:
