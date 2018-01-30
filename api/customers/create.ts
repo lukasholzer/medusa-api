@@ -1,27 +1,18 @@
 import * as uuid from 'uuid/v1';
 import { Handler, Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
+import { AWSError } from 'aws-sdk/lib/error';
 
 import { validateEventBody } from '../utils/tools';
-import ICustomer from '../interfaces/customer.interface';
-import { AWSError } from 'aws-sdk/lib/error';
+import { ICustomer } from '../interfaces/customer.interface';
+import { IResponse } from '../interfaces/aws.interface';
 
 
 const dB = new DynamoDB.DocumentClient();
 
-interface Params {
-  TableName: string;
-  Item: Item;
-}
-
 interface Item extends ICustomer {
   createdAt: number;
   updatedAt: number;
-}
-
-interface Response {
-  statusCode: number;
-  body: any;
 }
 
 const create: Handler = (event: any, context: Context, callback: Callback) => {
@@ -35,7 +26,7 @@ const create: Handler = (event: any, context: Context, callback: Callback) => {
       return;
     }
 
-    const params: Params = {
+    const params: DynamoDB.DocumentClient.PutItemInput = {
       TableName: `${process.env.DYNAMODB_TABLE}-customers`,
       Item: {
         id: `${uuid()}`,
@@ -53,7 +44,7 @@ const create: Handler = (event: any, context: Context, callback: Callback) => {
         return;
       }
 
-      const response: Response = {
+      const response: IResponse = {
         statusCode: 200,
         body: JSON.stringify(result)
       };

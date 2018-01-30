@@ -2,7 +2,6 @@ import { Handler, Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import { AWSError } from 'aws-sdk/lib/error';
 
-import { IDynamoDbParams } from '../interfaces/dynamodb.interface';
 import { IResponse } from '../interfaces/aws.interface';
 
 
@@ -11,7 +10,7 @@ const dB = new DynamoDB.DocumentClient();
 
 const list: Handler = (event: any, context: Context, callback: Callback) => {
 
-    const params: IDynamoDbParams = {
+    const params: DynamoDB.DocumentClient.ScanInput = {
       TableName: `${process.env.DYNAMODB_TABLE}-customers`
     }
     
