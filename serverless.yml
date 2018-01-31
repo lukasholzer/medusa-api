@@ -26,14 +26,21 @@ functions:
     handler: api/customers/create.create
     events:
       - http:
-          path: customers
+          path: customer
           method: post
           cors: true
   list:
     handler: api/customers/list.list
     events:
       - http:
-          path: customers
+          path: customer
+          method: get
+          cors: true
+  get:
+    handler: api/customers/get.get
+    events:
+      - http:
+          path: customer/{id}
           method: get
           cors: true
 

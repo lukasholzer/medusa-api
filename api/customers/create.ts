@@ -3,7 +3,7 @@ import { Handler, Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import { AWSError } from 'aws-sdk/lib/error';
 
-import { validateEventBody } from '../utils/tools';
+import { validateEventBody } from '../libs/tools';
 import { ICustomer } from '../interfaces/customer.interface';
 import { IResponse } from '../interfaces/aws.interface';
 
