@@ -21,8 +21,6 @@ export async function update(event: any, context: Context, callback: Callback) {
   }
 }
 
-
-
 function generateParams(id: string, data: {[key: string]: any }, remove?: boolean):  DynamoDB.DocumentClient.UpdateItemInput {
   
   const params: DynamoDB.DocumentClient.UpdateItemInput = {
