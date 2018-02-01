@@ -7,44 +7,36 @@ import { validateEventBody } from '../libs/tools';
 export async function update(event: any, context: Context, callback: Callback) {
 
   const data: any = validateEventBody(event.body);
+  data.updatedAt = new Date().getTime();
 
   const params = {
     TableName: `${process.env.DYNAMODB_TABLE}-customers`,
     Key: {
       id: event.pathParameters.id
     },
-    UpdateExpression: `SET 
-    #N = :name, 
-    web = :web, 
-    #UID = :uid`,
-    ExpressionAttributeValues: {
-      ":name": data.name || null,
-      ":web": data.web || null,
-      ":uid": data.uid || null
-      // ":company": data.company || null,
-      // ":email": data.email || null,
-      // ":uid": data.uid || null,
-      // ":updatedAt": new Date().getTime()
-    },
-    ExpressionAttributeNames: {
-      "#N": "name",
-      "#UID": "uid"
-    }, 
-    ReturnValues: "ALL_NEW"
+    ExpressionAttributeValues: {},
+    ExpressionAttributeNames: {},
+    UpdateExpression: 'SET ',
+    ReturnValues: 'ALL_NEW'
   };
 
-  // id: `${uuid()}`,
-  // name: data.name || undefined,
-  // web: data.web || undefined,
-  // company: data.company || undefined,
-  // email: data.email || undefined,
-  // address: undefined,
-  // avatar: undefined,
-  // persons: [],
-  // uid: data.uid || undefined,
-  // projects: [],
-  // createdAt: timestamp,
-  // updatedAt: timestamp
+  const expression = [];
+  // generate Update Expression with Attributes from event.body.data Object
+  for(const field in data) {
+    if (data.hasOwnProperty(field)) {
+      params.ExpressionAttributeValues = Object.assign({
+        [`:${field}`]: data[field]
+          }, params.ExpressionAttributeValues);
+  
+      expression.push(` #${field} = :${field}`);
+      params.ExpressionAttributeNames = Object.assign({
+        [`#${field}`]: field
+          }, params.ExpressionAttributeNames);
+  
+      }
+  }
+  
+  params.UpdateExpression += expression.join(', ');
 
   try {
     const result = await dynamoDbLib.call('update', params);
