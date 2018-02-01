@@ -3,40 +3,13 @@ import * as dynamoDbLib from "../libs/dynamodb.lib";
 import { success, failure } from "../libs/response.lib";
 
 import { validateEventBody } from '../libs/tools';
+import { DynamoDB } from 'aws-sdk';
 
 export async function update(event: any, context: Context, callback: Callback) {
 
   const data: any = validateEventBody(event.body);
-  data.updatedAt = new Date().getTime();
-
-  const params = {
-    TableName: `${process.env.DYNAMODB_TABLE}-customers`,
-    Key: {
-      id: event.pathParameters.id
-    },
-    ExpressionAttributeValues: {},
-    ExpressionAttributeNames: {},
-    UpdateExpression: 'SET ',
-    ReturnValues: 'ALL_NEW'
-  };
-
-  const expression = [];
-  // generate Update Expression with Attributes from event.body.data Object
-  for(const field in data) {
-    if (data.hasOwnProperty(field)) {
-      params.ExpressionAttributeValues = Object.assign({
-        [`:${field}`]: data[field]
-          }, params.ExpressionAttributeValues);
-  
-      expression.push(` #${field} = :${field}`);
-      params.ExpressionAttributeNames = Object.assign({
-        [`#${field}`]: field
-          }, params.ExpressionAttributeNames);
-  
-      }
-  }
-  
-  params.UpdateExpression += expression.join(', ');
+  const remove: boolean = !!(event.queryStringParameters && event.queryStringParameters.remove);
+  const params = generateParams(event.pathParameters.id, data, remove);
 
   try {
     const result = await dynamoDbLib.call('update', params);
@@ -44,6 +17,57 @@ export async function update(event: any, context: Context, callback: Callback) {
     callback(null, success(result));
   } catch (e) {
     console.log(e);
-    callback(null, failure({ status: false, error: `Couldn't update the Customer with the ID: ${event.pathParameters.id}`, debug: e }));
+    callback(null, failure({ status: false, error: `Couldn't update the Customer with the ID: ${event.pathParameters.id}`, debug: {stackTrace: e, params: params} }));
   }
+}
+
+
+
+function generateParams(id: string, data: {[key: string]: any }, remove?: boolean):  DynamoDB.DocumentClient.UpdateItemInput {
+  
+  const params: DynamoDB.DocumentClient.UpdateItemInput = {
+    TableName: `${process.env.DYNAMODB_TABLE}-customers`,
+    Key: {
+      id: id
+    },
+    ExpressionAttributeNames: generateExpAttr(data),
+    ExpressionAttributeValues: remove ? {} : generateExpAttr(data, true),
+    UpdateExpression: remove ? 'REMOVE ': 'SET ',
+    ReturnValues: 'ALL_NEW'
+  };
+
+  params.UpdateExpression += generateExp(data, remove);
+  params.ExpressionAttributeNames = Object.assign({[`#updatedAt`]: 'updatedAt'}, params.ExpressionAttributeNames)
+  params.ExpressionAttributeValues = Object.assign({[':updatedAt']: new Date().getTime()}, params.ExpressionAttributeValues);
+  params.UpdateExpression += ' SET #updatedAt = :updatedAt';
+
+  return params;
+}
+
+function generateExp(data: any, remove?: boolean): string {
+  const expression: string[] = [];
+
+  for(const field in data) {
+    if (data.hasOwnProperty(field)) {
+
+      const _expression = remove ? `#${field}`: ` #${field} = :${field}`;
+      expression.push(_expression);
+    }
+  }
+
+  return expression.join(', ');
+}
+
+function generateExpAttr(data: any, values?: boolean) {
+  let vals = {};
+
+  for(const field in data) {
+    if (data.hasOwnProperty(field)) {
+
+      const obj = (values)?  { [`:${field}`]: data[field] }: { [`#${field}`]: field };
+      vals = Object.assign(obj, vals);
+    }
+  }
+
+  return vals;
 }
