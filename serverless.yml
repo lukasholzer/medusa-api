@@ -50,6 +50,13 @@ functions:
           path: customer/{id}
           method: put
           cors: true
+  delet:
+    handler: api/customers/delete.main
+    events:
+      - http:
+          path: customer/{id}
+          method: delete
+          cors: true
 
 resources:
   Resources:
