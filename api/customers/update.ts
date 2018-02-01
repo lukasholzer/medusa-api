@@ -6,28 +6,29 @@ import { validateEventBody } from '../libs/tools';
 
 export async function update(event: any, context: Context, callback: Callback) {
 
-  const timestamp = new Date().getTime();
   const data: any = validateEventBody(event.body);
 
   const params = {
-    TableName: "notes",
-    // 'Key' defines the partition key and sort key of the item to be updated
+    TableName: `${process.env.DYNAMODB_TABLE}-customers`,
     Key: {
       id: event.pathParameters.id
     },
-    // 'UpdateExpression' defines the attributes to be updated
-    // 'ExpressionAttributeValues' defines the value in the update expression
-    UpdateExpression: "SET #N = :name, web = :web, updatedAt = :updatedAt",
+    UpdateExpression: `SET 
+    #N = :name, 
+    web = :web, 
+    #UID = :uid`,
     ExpressionAttributeValues: {
       ":name": data.name || null,
       ":web": data.web || null,
-      ":company": data.company || null,
-      ":email": data.email || null,
-      ":uid": data.uid || null,
-      ":updatedAt": new Date().getTime
+      ":uid": data.uid || null
+      // ":company": data.company || null,
+      // ":email": data.email || null,
+      // ":uid": data.uid || null,
+      // ":updatedAt": new Date().getTime()
     },
     ExpressionAttributeNames: {
-      "#N": "name"
+      "#N": "name",
+      "#UID": "uid"
     }, 
     ReturnValues: "ALL_NEW"
   };
@@ -46,9 +47,9 @@ export async function update(event: any, context: Context, callback: Callback) {
   // updatedAt: timestamp
 
   try {
-    await dynamoDbLib.call('update', params);
+    const result = await dynamoDbLib.call('update', params);
 
-    callback(null, success({ status: true }));
+    callback(null, success(result));
   } catch (e) {
     console.log(e);
     callback(null, failure({ status: false, error: `Couldn't update the Customer with the ID: ${event.pathParameters.id}`, debug: e }));
