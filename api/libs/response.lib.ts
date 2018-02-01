@@ -1,6 +1,6 @@
 import { IResponse } from '../interfaces/aws.interface';
 
-interface IErrorObject {
+interface IResponseErrorObject {
   status: boolean;
   error?: String;
 }
@@ -9,7 +9,7 @@ export function success(body: Object) {
   return buildResponse(200, body);
 }
 
-export function failure(body: IErrorObject) {
+export function failure(body: IResponseErrorObject) {
   return buildResponse(500, body);
 }
 

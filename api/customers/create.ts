@@ -1,21 +1,19 @@
 import * as uuid from 'uuid/v1';
-import { Handler, Context, Callback } from 'aws-lambda';
+import { Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-import { AWSError } from 'aws-sdk/lib/error';
 
+import * as dynamoDbLib from '../libs/dynamodb.lib';
+import { success, failure } from "../libs/response.lib";
 import { validateEventBody } from '../libs/tools';
+
 import { ICustomer } from '../interfaces/customer.interface';
-import { IResponse } from '../interfaces/aws.interface';
-
-
-const dB = new DynamoDB.DocumentClient();
 
 interface Item extends ICustomer {
   createdAt: number;
   updatedAt: number;
 }
 
-const create: Handler = (event: any, context: Context, callback: Callback) => {
+export async function create(event: any, context: Context, callback: Callback) {
 
     const timestamp = new Date().getTime();
     const data: any = validateEventBody(event.body);
@@ -55,23 +53,11 @@ const create: Handler = (event: any, context: Context, callback: Callback) => {
         countryShort: data.address.countryShort || undefined
       };
     }
-    
 
-    dB.put(params, (error: AWSError, result) => {
-      if(error) {
-        console.error(error);
-        callback(new Error('Could\'t create the new Customer.'));
-        return;
-      }
-
-      const response: IResponse = {
-        statusCode: 200,
-        body: JSON.stringify(result)
-      };
-
-      callback(null, response);
-
-    });
+    try {
+      await dynamoDbLib.call('put', params);
+      callback(null, success(params.Item));
+    } catch (e) {
+      callback(null, failure({ status: false, error: 'Could\'t create the new Customer.' }));
+    }
 }
-
-export { create };

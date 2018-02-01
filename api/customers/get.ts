@@ -14,7 +14,6 @@ export async function get(event: any, context: Context, callback: Callback) {
       }
     }
 
-
     try {
       const result = await dynamoDbLib.call('get', params);
 
