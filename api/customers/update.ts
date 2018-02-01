@@ -35,9 +35,13 @@ function generateParams(id: string, data: {[key: string]: any }, remove?: boolea
   };
 
   params.UpdateExpression += generateExp(data, remove);
-  params.ExpressionAttributeNames = Object.assign({[`#updatedAt`]: 'updatedAt'}, params.ExpressionAttributeNames)
-  params.ExpressionAttributeValues = Object.assign({[':updatedAt']: new Date().getTime()}, params.ExpressionAttributeValues);
-  params.UpdateExpression += ' SET #updatedAt = :updatedAt';
+
+  // Add a Set part for the updatedAt Timestamp
+  if(remove) {
+    params.ExpressionAttributeNames = Object.assign({[`#updatedAt`]: 'updatedAt'}, params.ExpressionAttributeNames)
+    params.ExpressionAttributeValues = Object.assign({[':updatedAt']: new Date().getTime()}, params.ExpressionAttributeValues);
+    params.UpdateExpression += ' SET #updatedAt = :updatedAt';
+  }
 
   return params;
 }
