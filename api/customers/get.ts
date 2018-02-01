@@ -20,7 +20,7 @@ export async function get(event: any, context: Context, callback: Callback) {
       if (result.Item) {
         callback(null, success(result.Item));
       } else {
-        callback(null, failure({ status: false, error: 'Customer Item not found.' }));
+        callback(null, failure({ status: false, error: `Customer Item with ID: ${event.pathParameters.id} not found.` }));
       }
     } catch (e) {
       callback(null, failure({ status: false }));

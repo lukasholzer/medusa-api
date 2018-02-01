@@ -3,6 +3,7 @@ import { IResponse } from '../interfaces/aws.interface';
 interface IResponseErrorObject {
   status: boolean;
   error?: String;
+  debug?: any;
 }
 
 export function success(body: Object) {
