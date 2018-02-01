@@ -19,8 +19,7 @@ export async function create(event: any, context: Context, callback: Callback) {
     const data: any = validateEventBody(event.body);
 
     if(typeof data.name !== 'string') {
-      console.error('Validation Failed');
-      callback(new Error('Could\'t parse the data!'));
+      callback(null, failure({ status: false, error: 'Could\'t parse the data. JSON Validation Failed!' }));
       return;
     }
 

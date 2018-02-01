@@ -1,35 +1,21 @@
-import { Handler, Context, Callback } from 'aws-lambda';
+import { Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-import { AWSError } from 'aws-sdk/lib/error';
 
-import { IResponse } from '../interfaces/aws.interface';
+import * as dynamoDbLib from '../libs/dynamodb.lib';
+import { success, failure } from "../libs/response.lib";
 
+export async function list(event: any, context: Context, callback: Callback) {
 
-const dB = new DynamoDB.DocumentClient();
-
-
-const list: Handler = (event: any, context: Context, callback: Callback) => {
-
-    const params: DynamoDB.DocumentClient.ScanInput = {
+    const params: DynamoDB.DocumentClient.QueryInput = {
       TableName: `${process.env.DYNAMODB_TABLE}-customers`
     }
     
+    try {
+      const result = await dynamoDbLib.call('query', params);
 
-    dB.scan(params,  (error: AWSError, result) => {
-      if(error) {
-        console.error(error);
-        callback(new Error('Could\'t list all the customers.'));
-        return;
-      }
+      callback(null, success(result.Items));
+    } catch (e) {
+      callback(null, failure({ status: false, error: 'Could\'t list all the customers.' }));
+    }
 
-      const response: IResponse = {
-        statusCode: 200,
-        body: JSON.stringify(result)
-      };
-
-      callback(null, response);
-
-    });
 }
-
-export { list };
