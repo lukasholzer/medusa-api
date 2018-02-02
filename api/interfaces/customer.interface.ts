@@ -9,11 +9,10 @@ export interface ICustomer {
   uid?: string;
   address?: ICustomerAddress;
   projects?: ICustomerProjects[];
-  
 }
 
 export interface ICustomerEmployees {
-  id: string
+  id: string;
 }
 
 export interface ICustomerAddress {

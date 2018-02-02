@@ -2,7 +2,7 @@ import { Context, Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 
 import * as dynamoDbLib from '../libs/dynamodb.lib';
-import { success, failure } from "../libs/response.lib";
+import { success, failure } from '../libs/response.lib';
 
 
 export async function main(event: any, context: Context, callback: Callback) {

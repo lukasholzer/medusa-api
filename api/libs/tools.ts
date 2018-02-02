@@ -4,12 +4,12 @@ export function validateEventBody(body: any) {
 
   try {
     result = JSON.parse(body);
-  } catch(error) {
+  } catch (error) {
     console.error(`No Valid Object was provided! \n`);
     return;
   }
 
-  if(typeof result !== 'object') {
+  if (typeof result !== 'object') {
     console.error(`Body is not an Object! \n\n`);
     return;
   }
