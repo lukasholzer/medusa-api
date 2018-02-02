@@ -5,11 +5,14 @@ REST-API for managing customers and Projects in a DynamoDB with serverless on AW
 
 ### Customers
 
-`POST {stage}/customer`
+* `POST {stage}/customer`
+* `GET {stage}/customer`
+* `GET {stage}/customer/{id}`
+* `DELETE {stage}/customer/{id}`
 
-`GET {stage}/customer`
+## Projekte
 
-`GET {stage}/customer/{id}`
-
-`DELETE {stage}/customer/{id}`
-
+* `POST {stage}/project`
+* `GET {stage}/project/`
+* `GET {stage}/project/{id}`
+* `DELETE {stage}/project/{id}`
