@@ -1,10 +1,7 @@
 import * as uuid from 'uuid/v1';
 import { Callback } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-
-import * as dynamoDbLib from '../libs/dynamodb.lib';
-import { success, failure } from '../libs/response.lib';
-
+import Database from './database.class';
 import { ICustomer } from '../interfaces/customer.interface';
 
 interface Item extends ICustomer {
@@ -19,16 +16,11 @@ interface ExpressionAttribute {
 export default class Customer {
 
   private static TABLE_NAME = `${process.env.DYNAMODB_TABLE}-customers`;
+  private _db = new Database();
 
   public async create(data: any, callback: Callback) {
     const params = this._generateCreateParams(data);
-
-    try {
-      await dynamoDbLib.call('put', params);
-      callback(null, success(params.Item));
-    } catch (e) {
-      callback(null, failure({ status: false, error: 'Could\'t create the new Customer.' }));
-    }
+    this._db.create(params, callback);
   }
 
   public async get(id: string, callback: Callback) {
@@ -38,52 +30,19 @@ export default class Customer {
         id: id
       }
     };
-
-    try {
-      const result = await dynamoDbLib.call(`get`, params);
-
-      if (result.Item) {
-        callback(null, success(result.Item));
-      } else {
-        callback(null,
-          failure({
-            status: false, error: `Customer Item with ID: ${ id} not found.`
-          })
-        );
-      }
-    } catch (e) {
-      callback(null, failure({ status: false }));
-    }
+    this._db.get(params, callback);
   }
 
   public async list(callback: Callback) {
     const params: DynamoDB.DocumentClient.QueryInput = {
       TableName: Customer.TABLE_NAME
     };
-
-    try {
-      const result = await dynamoDbLib.call('scan', params);
-      callback(null, success(result.Items));
-    } catch (e) {
-      callback(null, failure({ status: false, error: 'Could\'t list all the customers.' }));
-    }
+    this._db.list(params, callback);
   }
 
   public async update(id: string, data: any, remove: boolean, callback: Callback) {
     const params = this._generateUpdateParams(id, data, remove);
-
-    try {
-      const result = await dynamoDbLib.call('update', params);
-
-      callback(null, success(result));
-    } catch (e) {
-      console.log(e);
-      callback(null, failure({
-        status: false,
-        error: `Couldn't update the Customer with the ID: ${id}`,
-        debug: { stackTrace: e, params: params }
-      }));
-    }
+    this._db.update(params, callback);
   }
 
   public async delete(id: string, callback: Callback) {
@@ -93,13 +52,7 @@ export default class Customer {
         id: id
       }
     };
-
-    try {
-      await dynamoDbLib.call('delete', params);
-      callback(null, success({ status: true }));
-    } catch (e) {
-      callback(null, failure({ status: false, error: 'Customer could not be deleted!', debug: e }));
-    }
+    this._db.delete(params, callback);
   }
 
   private _generateUpdateParams(

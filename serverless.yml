@@ -22,40 +22,56 @@ provider:
 
 
 functions:
-  create:
+  createCustomer:
     handler: api/customers/create.main
     events:
       - http:
           path: customer
           method: post
           cors: true
-  list:
+  listCustomer:
     handler: api/customers/list.main
     events:
       - http:
           path: customer
           method: get
           cors: true
-  get:
+  getCustomer:
     handler: api/customers/get.main
     events:
       - http:
           path: customer/{id}
           method: get
           cors: true
-  update:
+  updateCustomer:
     handler: api/customers/update.main
     events:
       - http:
           path: customer/{id}
           method: put
           cors: true
-  delet:
+  deleteCustomer:
     handler: api/customers/delete.main
     events:
       - http:
           path: customer/{id}
           method: delete
+          cors: true
+
+  createProject:
+    handler: api/projects/create.main
+    events:
+      - http:
+          path: project
+          method: post
+          cors: true
+          getCustomer:
+  getProject:
+    handler: api/projects/get.main
+    events:
+      - http:
+          path: project/{id}
+          method: get
           cors: true
 
 resources:
