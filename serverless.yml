@@ -23,28 +23,28 @@ provider:
 
 functions:
   create:
-    handler: api/customers/create.create
+    handler: api/customers/create.main
     events:
       - http:
           path: customer
           method: post
           cors: true
   list:
-    handler: api/customers/list.list
+    handler: api/customers/list.main
     events:
       - http:
           path: customer
           method: get
           cors: true
   get:
-    handler: api/customers/get.get
+    handler: api/customers/get.main
     events:
       - http:
           path: customer/{id}
           method: get
           cors: true
   update:
-    handler: api/customers/update.update
+    handler: api/customers/update.main
     events:
       - http:
           path: customer/{id}
@@ -65,17 +65,34 @@ resources:
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          -
+          - 
             AttributeName: id
             AttributeType: S
         KeySchema:
-          -
+          - 
             AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}-customers
+    ProjectsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - 
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - 
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}-projects
+
         
 plugins:
   - serverless-plugin-typescript

@@ -4,7 +4,7 @@ import Customer from '../libs/customer.class';
 
 const customer = new Customer();
 
-export async function update(event: any, context: Context, callback: Callback) {
+export async function main(event: any, context: Context, callback: Callback) {
   const data: any = validateEventBody(event.body);
   const remove: boolean = !!(event.queryStringParameters && event.queryStringParameters.remove);
 

@@ -1,8 +1,7 @@
 import { Context, Callback } from 'aws-lambda';
-import Customer from '../libs/customer.class';
-
-const customer = new Customer();
+import { success } from '../libs/response.lib';
 
 export async function main(event: any, context: Context, callback: Callback) {
-  customer.list(callback);
+
+  callback(null, success({ message: 'Create a Project!' }));
 }
