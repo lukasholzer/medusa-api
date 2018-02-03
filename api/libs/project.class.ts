@@ -34,6 +34,13 @@ export default class Project {
     this._db.get(params, callback);
   }
 
+  public async list(callback: Callback) {
+    const params: DynamoDB.DocumentClient.QueryInput = {
+      TableName: Project.TABLE_NAME
+    };
+    this._db.list(params, callback);
+  }
+
 
   private _generateCreateParams(data: ExpressionAttribute): DynamoDB.DocumentClient.PutItemInput {
     const timestamp = Date.now();
