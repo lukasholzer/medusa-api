@@ -7,7 +7,7 @@ export interface ICustomer {
   avatar?: string;
   persons?: ICustomerEmployees[];
   uid?: string;
-  address?: ICustomerAddress;
+  address?: IAddress;
   projects?: ICustomerProjects[];
 }
 
@@ -15,7 +15,7 @@ export interface ICustomerEmployees {
   id: string;
 }
 
-export interface ICustomerAddress {
+export interface IAddress {
   street: string;
   number: string;
   town: string;
